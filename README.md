@@ -1,6 +1,3 @@
-[🏠 README](./README.md) · [📖 View Complete Project Plan](./planned_to_build.md)
----
-
 # end-to-end e-commerce website test in playwright-typecript
 
 ## 📋 Project Plan
