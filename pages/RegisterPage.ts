@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test"
+import { expect, Locator, Page } from "@playwright/test"
 
 export interface FormData {
     Fname: string
@@ -20,6 +20,8 @@ export class RegisterPage{
     readonly CPassInput: Locator;
     readonly PolicyInput: Locator;
     readonly ContinueBtn: Locator;
+    readonly PolicyLabel: Locator;
+    readonly WarningLabel: Locator;
 
     constructor(page: Page){
         this.page = page;
@@ -29,12 +31,14 @@ export class RegisterPage{
         this.TelephInput = this.page.locator("#input-telephone")
         this.PassInput = this.page.locator("#input-password")
         this.CPassInput = this.page.locator("#input-confirm")
-        this.PolicyInput = this.page.locator(".agree")
-        this.ContinueBtn = this.page.locator('//*[@id="content"]/form/div/div/input')
+        this.PolicyInput = this.page.locator('#input-agree');
+        this.PolicyLabel = this.page.locator('label[for="input-agree"]');
+        this.ContinueBtn = this.page.locator('//*[@id="content"]/form/div/div/input');
+        this.WarningLabel = this.page.locator('//*[@id="account-register"]/div[1]');
     }
 
     async navigate(): Promise<void>{
-        await this.page.goto("index.php?route=account/register")
+        await this.page.goto("index.php?route=account/register");
     }
 
     async FillRegisterForm(userdetails : FormData) :Promise<void> {
@@ -44,8 +48,28 @@ export class RegisterPage{
         await this.TelephInput.fill("+"+ userdetails.telephone);
         await this.PassInput.fill(userdetails.password);
         await this.CPassInput.fill(userdetails.password);
-        await this.PolicyInput.check();
+    }
+
+    async CkechPolicyBtn(): Promise<void> {
+        await this.PolicyLabel.click();
+        await expect(this.PolicyInput).toBeChecked();
+    }
+
+    async ClickConfirmBtn(): Promise<void>{
         await this.ContinueBtn.click();
+    }
+
+    async CheckEmptyDetailsWarning(): Promise<void> {
+        const text = await this.WarningLabel.textContent();
+        expect(text).toContain("You must agree to the Privacy Policy!");
+    }
+
+    async CheckURLonRegisterPage():Promise<void> {
+        await expect(this.page).toHaveURL(/route=account\/register/i)
+    }
+
+    async CheckURLonSuccessPage(): Promise<void>{
+        await expect(this.page).toHaveURL(/route=account\/success/i);
     }
 
 }
